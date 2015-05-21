@@ -10,32 +10,27 @@ public class Text {
     private String cmdIn;
     private String currDirct;
     private GUI gui;
+    private boolean exiting;
 
     public Text()
     {
-
+    	exiting = false;
     }
 
     public Text(GUI g)
     {
         gui = g;
-        try {
-            getCurrentDirectory();
-            sendString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        exiting = false;
+        checkCommand("ls");
     }
 
     public void sendString() throws java.io.IOException, java.lang.InterruptedException
     {
-        cmdOut = "ls";
+        gui.addText(cmdOut + "\n");
         // Get runtime
         java.lang.Runtime rt = java.lang.Runtime.getRuntime();
         // Start a new process: UNIX command ls
-        java.lang.Process p = rt.exec("ls");
+        java.lang.Process p = rt.exec(cmdOut);
         // You can or maybe should wait for the process to complete
         p.waitFor();
         // Get process' output: its InputStream
@@ -44,10 +39,30 @@ public class Text {
         // And print each line
         String s = null;
         while ((s = reader.readLine()) != null) {
-            gui.addText(s);
+            gui.addText(s + "\n");
         }
         is.close();
         System.out.println("This ran");
+    }
+    
+    public void checkCommand(String commd)
+    {
+    	String temp = commd;
+    	temp.trim();
+    	if(temp.equals("exit"))
+    	{
+    		exiting = true;
+    		return;
+    	}
+    	cmdOut = commd;
+    	try {
+            getCurrentDirectory();
+            sendString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }    		
     }
 
     public void getCurrentDirectory()
@@ -56,4 +71,14 @@ public class Text {
         st = System.getProperty("user.dir").toString();
         gui.printPrompt(st);
     }
+
+	public boolean isExiting() {
+		return exiting;
+	}
+
+	public void setExiting(boolean exiting) {
+		this.exiting = exiting;
+	}
+    
+    
 }
